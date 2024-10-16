@@ -11,8 +11,27 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+interface Env {
+	cache: KVNamespace;
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
+		const exists = await env.cache.get("msg")
+		if (exists) {
+			return new Response("exists");
+		}
+
+		if (request.cf?.latitude || !request.cf?.longitude) {
+			return new Response("error");
+		}
+
+		const localtion = request.cf.latitude + request.cf.longitude
+		await env.cache.put("msg", localtion, {
+			expirationTtl: 60
+		})
+		
+		const str = await env.cache.get("msg")
+		return new Response(str);
 	},
 } satisfies ExportedHandler<Env>;

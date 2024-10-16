@@ -4,6 +4,10 @@ main = "src/index.ts"
 compatibility_date = "2024-10-11"
 compatibility_flags = ["nodejs_compat"]
 
+kv_namespaces = [
+    { binding = "cache", id = "3e63426301a644cbaa9ed63532c59d2d", preview_id = "59e9104e58274753a43e51f51e8e4aff" }
+]
+
 # Workers Logs
 # Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/
 # Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
