@@ -22,7 +22,7 @@ export default {
 			return new Response("exists");
 		}
 
-		if (request.cf?.latitude || !request.cf?.longitude) {
+		if (!request.cf?.latitude || !request.cf?.longitude) {
 			return new Response("error");
 		}
 
@@ -30,7 +30,7 @@ export default {
 		await env.cache.put("msg", localtion, {
 			expirationTtl: 60
 		})
-		
+
 		const str = await env.cache.get("msg")
 		return new Response(str);
 	},
