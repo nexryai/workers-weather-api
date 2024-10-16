@@ -28,7 +28,11 @@ export default {
 
 		const exists = await env.cache.get(cacheKey)
 		if (exists) {
-			return new Response(exists);
+			return new Response(exists, {
+				headers: {
+					"Content-Type": "application/json"
+				}
+			});
 		}
 
 		const req = new Request(`https://api.met.no/weatherapi/locationforecast/2.0?lat=${lat}&lon=${lon}`, {
@@ -44,6 +48,10 @@ export default {
 			expirationTtl: 60
 		})
 
-		return new Response(resString);
+		return new Response(resString, {
+			headers: {
+				"Content-Type": "application/json"
+			}
+		});
 	},
 } satisfies ExportedHandler<Env>;
