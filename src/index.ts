@@ -45,7 +45,8 @@ export default {
 		const resString = await res.text()
 
 		await env.cache.put(cacheKey, resString, {
-			expirationTtl: 60
+			// 30 min
+			expirationTtl: 1800
 		})
 
 		return new Response(resString, {
