@@ -42,6 +42,8 @@ export default {
 		})
 
 		const res = await fetch(req)
+
+		// ToDo: 現状のデータは扱いにくいので扱いやすいように整形する
 		const resString = await res.text()
 
 		await env.cache.put(cacheKey, resString, {
