@@ -14,17 +14,25 @@
 import { WeatherMetNorway } from "./upstreams/MetNorway";
 
 interface Env {
-	cache: KVNamespace;
+	cache: KVNamespace
 }
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		if (!request.cf?.latitude || !request.cf?.longitude) {
-			return new Response("error: unable to get location");
+		let lat = request.cf?.latitude
+		let lon = request.cf?.longitude
+
+		if (!lat || !lon) {
+			const url = new URL(request.url)
+			lat = url.searchParams.get('lat') ?? undefined
+			lon = url.searchParams.get('lon') ?? undefined
+
+			if (!lat || !lon) {
+				return new Response("error: unable to get location")
+			}
 		}
 
-		const lat = request.cf.latitude
-		const lon = request.cf.longitude
+
 		const localtion = `${lat}:${lon}`
 		const cacheKey = `weather.${localtion}`
 
@@ -58,6 +66,6 @@ export default {
 			headers: {
 				"Content-Type": "application/json"
 			}
-		});
+		})
 	},
 } satisfies ExportedHandler<Env>;
