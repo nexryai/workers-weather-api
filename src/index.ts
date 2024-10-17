@@ -11,6 +11,8 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { WeatherMetNorway } from "./upstreams/MetNorway";
+
 interface Env {
 	cache: KVNamespace;
 }
@@ -44,6 +46,7 @@ export default {
 		const res = await fetch(req)
 
 		// ToDo: 現状のデータは扱いにくいので扱いやすいように整形する
+		const weather = res as unknown as WeatherMetNorway
 		const resString = await res.text()
 
 		await env.cache.put(cacheKey, resString, {
@@ -51,7 +54,7 @@ export default {
 			expirationTtl: 1800
 		})
 
-		return new Response(resString, {
+		return new Response(JSON.stringify(weather), {
 			headers: {
 				"Content-Type": "application/json"
 			}
