@@ -11,16 +11,20 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { WeatherMetNorway } from "./upstreams/MetNorway";
+import { MetNorwayWeatherService } from "./services/weather/WeatherService";
+
 
 interface Env {
 	cache: KVNamespace
 }
 
+const weatherService = new(MetNorwayWeatherService)
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		let lat = request.cf?.latitude
 		let lon = request.cf?.longitude
+		let tz = request.cf?.timezone || "Asia/Tokyo"
 
 		if (!lat || !lon) {
 			const url = new URL(request.url)
@@ -45,24 +49,15 @@ export default {
 			});
 		}
 
-		const req = new Request(`https://api.met.no/weatherapi/locationforecast/2.0?lat=${lat}&lon=${lon}`, {
-			headers: {
-				"User-Agent": "Workers Wrather API (https://github.com/nexryai/workers-weather-api)",
-			},
-		})
-
-		const res = await fetch(req)
-
-		// ToDo: 現状のデータは扱いにくいので扱いやすいように整形する
-		const weather = res as unknown as WeatherMetNorway
-		const resString = await res.text()
+		const res = await weatherService.fetchWeather(lat, lon, tz)
+		const resString = JSON.stringify(res)
 
 		await env.cache.put(cacheKey, resString, {
 			// 30 min
 			expirationTtl: 1800
 		})
 
-		return new Response(JSON.stringify(weather), {
+		return new Response(JSON.stringify(resString), {
 			headers: {
 				"Content-Type": "application/json"
 			}
