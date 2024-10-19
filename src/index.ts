@@ -57,7 +57,7 @@ export default {
 			expirationTtl: 1800
 		})
 
-		return new Response(JSON.stringify(resString), {
+		return new Response(resString, {
 			headers: {
 				"Content-Type": "application/json"
 			}
