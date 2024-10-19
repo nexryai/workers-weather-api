@@ -32,7 +32,6 @@ export class MetNorwayWeatherService implements WeatherService {
             .slice(baseIndex, baseIndex + 23)
             .map(item => item.data.instant.details.air_temperature);
 
-        console.log(temperatures)
         return { 
             max: Math.max(...temperatures), 
             min: Math.min(...temperatures) 
