@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "dayjs": "^1.11.13",
+    "elysia": "^1.1.22",
     "timezone": "^1.0.23"
   }
 }
