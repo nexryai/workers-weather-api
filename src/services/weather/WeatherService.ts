@@ -17,9 +17,7 @@ export class MetNorwayWeatherService implements WeatherService {
     }
 
     private seekForecast(data: Series[], seekTo: dayjs.Dayjs): Data {
-        console.log(seekTo)
         const utcTime = seekTo.utc().format('YYYY-MM-DDTHH:mm:ss[Z]')
-        console.log(utcTime)
         return data.find(entry => entry.time === utcTime)?.data!
     }
 
