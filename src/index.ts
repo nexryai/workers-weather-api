@@ -11,7 +11,7 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import Elysia, { Context } from "elysia";
+import Elysia, { Context, t } from "elysia";
 import { MetNorwayWeatherService } from "./services/weather/WeatherService";
 
 
@@ -26,24 +26,22 @@ const weatherService = new(MetNorwayWeatherService)
 const app = new Elysia({ aot: false })
 
 //@ts-ignore
-app.get("/weather", async({ cache, request }) => {
-	let lat = request.cf?.latitude
-	let lon = request.cf?.longitude
-	let tz = request.cf?.timezone || "Asia/Tokyo"
+app.get("/weather", async ({ cache, request, query }) => {
+	query: t.Object({
+		lat: t.Optional(t.String()),
+		lon: t.Optional(t.String()),
+		tz: t.Optional(t.String())
+	})
+
+	let lat = query.lat || request.cf?.latitude
+	let lon = query.lon || request.cf?.longitude 
+	let tz = query.tz || request.cf?.timezone
 
 	if (!lat || !lon) {
-		const url = new URL(request.url)
-		lat = url.searchParams.get('lat') ?? undefined
-		lon = url.searchParams.get('lon') ?? undefined
-
-		if (!lat || !lon) {
-			return new Response("error: unable to get location")
-		}
+		return new Response("error: unable to get location")
 	}
 
-
-	const localtion = `${lat}:${lon}`
-	const cacheKey = `weather.${localtion}`
+	const cacheKey = `weather.${lat}:${lon}`
 
 	const exists = await cache.get(cacheKey)
 	if (exists) {
