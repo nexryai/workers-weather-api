@@ -23,6 +23,24 @@ export class MetNorwayWeatherService implements WeatherService {
         return data.find(entry => entry.time === utcTime)?.data!
     }
 
+    private getMaxAndMinTemp(data: Series[], date: dayjs.Dayjs): { max: number, min: number } {
+        date = date.set('hour', 0).set('minute', 0).set('second', 0)
+        const baseIndex = data.findIndex(
+            entry => entry.time === date.utc().format('YYYY-MM-DDTHH:mm:ss[Z]')
+        )
+
+        // baseIndex ~ +23の範囲でair_temperatureを取得
+        const temperatures = data
+            .slice(baseIndex, baseIndex + 23)
+            .map(item => item.data.instant.details.air_temperature);
+
+        console.log(temperatures)
+        return { 
+            max: Math.max(...temperatures), 
+            min: Math.min(...temperatures) 
+        }
+    }
+
     public async fetchWeather(lat: string, lon: string, tz: string): Promise<WeatherForecast> {
         const req = new Request(`https://api.met.no/weatherapi/locationforecast/2.0?lat=${lat}&lon=${lon}`, {
             headers: {
@@ -31,10 +49,9 @@ export class MetNorwayWeatherService implements WeatherService {
         })
 
         const res = await fetch(req)
-
-        // ToDo: 現状のデータは扱いにくいので扱いやすいように整形する
         const weather = await res.json() as WeatherMetNorway
 
+        // 現在の気温
         const nowTemp = weather.properties.timeseries[0].data.instant.details.air_temperature
 
         // 現在の時刻によって”今日の天気”として表示される予報の範囲を変更する
@@ -62,11 +79,12 @@ export class MetNorwayWeatherService implements WeatherService {
         for (let d = 1; d < 3; d++) {
             const seekTo = dayjs().tz(tz).add(d, 'day').set('hour', 7).set('minute', 0).set('second', 0)
             const weatherSymbol = this.seekForecast(weather.properties.timeseries, seekTo).next_12_hours?.summary.symbol_code!
+            const temp = this.getMaxAndMinTemp(weather.properties.timeseries, seekTo)
             result.forecasts.push({
                 date: seekTo.format('YYYY-MM-DD'),
                 symbol: weatherSymbol,
-                max_temp: 0,
-                min_temp: 0
+                max_temp: temp.max,
+                min_temp: temp.min
             })
         }
 
