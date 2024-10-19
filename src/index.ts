@@ -20,9 +20,6 @@ interface Env {
 }
 
 const weatherService = new(MetNorwayWeatherService)
-
-
-
 const app = new Elysia({ aot: false })
 
 //@ts-ignore
