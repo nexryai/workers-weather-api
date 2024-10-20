@@ -57,7 +57,7 @@ export class MetNorwayWeatherService implements WeatherService {
         const nowHour = dayjs().tz(tz).hour()
         if (nowHour < 8) {
             // 8時より前なら8時から今後12時間の予報を本日の天気とする
-            const seekTo = dayjs().tz(tz).set('hour', 6).set('minute', 0).set('second', 0)
+            const seekTo = dayjs().tz(tz).set('hour', 8).set('minute', 0).set('second', 0)
             todayWeatherSymbol = this.seekForecast(weather.properties.timeseries, seekTo).next_12_hours?.summary.symbol_code!
         } else if (nowHour < 16) {
             // 16時より前であれば今後12時間の予報を本日の予報とする
