@@ -97,7 +97,6 @@ export default {
 				cache: env.cache
 			})
 
-			app.compile()
 			decorated = true
 		}
 		
