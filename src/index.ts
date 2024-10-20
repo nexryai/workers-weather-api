@@ -23,7 +23,8 @@ const weatherService = new(MetNorwayWeatherService)
 const app = new Elysia({ aot: false })
 
 app.onError(({ code, error, set }) => {
-	if (code != "VALIDATION") {
+	// 想定されないエラーは全部500
+	if (!["VALIDATION", "NOT_FOUND"].includes(code)) {
 		console.error(`ERROR OCCURRED: ${error}`)
 		console.error("===== STACK =====")
 		console.error(error.stack)
