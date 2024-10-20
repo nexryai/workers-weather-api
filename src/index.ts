@@ -21,6 +21,7 @@ interface Env {
 
 const weatherService = new(MetNorwayWeatherService)
 const app = new Elysia({ aot: false })
+let decorated = false
 
 app.onError(({ code, error, set }) => {
 	// 想定されないエラーは全部500
@@ -86,10 +87,14 @@ app.get("/weather", async ({ cache, request, query }) => {
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		app.decorate({
-			cache: env.cache
-		})
+		if (!decorated) {
+			app.decorate({
+				cache: env.cache
+			})
 
+			decorated = true
+		}
+		
 		return app.fetch(request)
 	},
 } satisfies ExportedHandler<Env>;
