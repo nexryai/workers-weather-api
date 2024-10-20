@@ -46,7 +46,7 @@ export class MetNorwayWeatherService implements WeatherService {
         })
 
         const res = await fetch(req)
-        const weather = await res.json() as WeatherMetNorway
+        const weather: WeatherMetNorway = await res.json()
 
         // 現在の気温
         const nowTemp = weather.properties.timeseries[0].data.instant.details.air_temperature
