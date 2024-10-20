@@ -36,9 +36,9 @@ app.onError(({ code, error, set }) => {
 // FIXME: cacheがKVNamespaceにならない
 //@ts-ignore
 app.get("/weather", async ({ cache, request, query }) => {
-	let lat = query.lat || request.cf?.latitude as number | undefined
-	let lon = query.lon || request.cf?.longitude as number | undefined
-	let tz = query.tz || request.cf?.timezone as string | undefined
+	let lat = query.lat || request.cf?.latitude as number
+	let lon = query.lon || request.cf?.longitude as number
+	let tz = query.tz || request.cf?.timezone as string
 
 	if (!lat || !lon || !tz) {
 		return error(400, "error: unable to get location or timezone")
