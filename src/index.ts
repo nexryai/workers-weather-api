@@ -30,7 +30,7 @@ app.get("/weather", async ({ cache, request, query }) => {
 	let tz = query.tz || request.cf?.timezone as string | undefined
 
 	if (!lat || !lon || !tz) {
-		return new Response("error: unable to get location or timezone")
+		return error(400, "error: unable to get location or timezone")
 	}
 
 	const cacheKey = `weather.${lat}:${lon}`
