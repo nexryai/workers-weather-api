@@ -88,6 +88,7 @@ app.get("/weather", async ({ cache, request, query }) => {
 	})
 })
 
+app.compile()
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
@@ -96,6 +97,7 @@ export default {
 				cache: env.cache
 			})
 
+			app.compile()
 			decorated = true
 		}
 		
