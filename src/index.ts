@@ -35,6 +35,10 @@ app.onError(({ code, error, set }) => {
 	}
 })
 
+app.get("/healthz", async () => {
+	return "I'm OK!"
+})
+
 // FIXME: cacheがKVNamespaceにならない
 //@ts-ignore
 app.get("/weather", async ({ cache, request, query }) => {
