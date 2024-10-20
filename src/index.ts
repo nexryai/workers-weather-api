@@ -20,7 +20,7 @@ interface Env {
 }
 
 const weatherService = new(MetNorwayWeatherService)
-const app = new Elysia({ aot: false })
+const app = new Elysia({ aot: false, precompile: true })
 let decorated = false
 
 app.onError(({ code, error, set }) => {
