@@ -22,6 +22,17 @@ interface Env {
 const weatherService = new(MetNorwayWeatherService)
 const app = new Elysia({ aot: false })
 
+app.onError(({ code, error, set }) => {
+	if (code != "VALIDATION") {
+		console.error(`ERROR OCCURRED: ${error}`)
+		console.error("===== STACK =====")
+		console.error(error.stack)
+		console.error("=================")
+		set.status = 500
+		return "An unexpected error occurred. The request was aborted."
+	}
+})
+
 // FIXME: cacheがKVNamespaceにならない
 //@ts-ignore
 app.get("/weather", async ({ cache, request, query }) => {
