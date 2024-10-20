@@ -11,7 +11,7 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import Elysia, { Context, t } from "elysia";
+import Elysia, { Context, error, t } from "elysia";
 import { MetNorwayWeatherService } from "./services/weather/WeatherService";
 
 
@@ -22,20 +22,15 @@ interface Env {
 const weatherService = new(MetNorwayWeatherService)
 const app = new Elysia({ aot: false })
 
+// FIXME: cacheがKVNamespaceにならない
 //@ts-ignore
 app.get("/weather", async ({ cache, request, query }) => {
-	query: t.Object({
-		lat: t.Optional(t.String()),
-		lon: t.Optional(t.String()),
-		tz: t.Optional(t.String())
-	})
+	let lat = query.lat || request.cf?.latitude as number | undefined
+	let lon = query.lon || request.cf?.longitude as number | undefined
+	let tz = query.tz || request.cf?.timezone as string | undefined
 
-	let lat = query.lat || request.cf?.latitude
-	let lon = query.lon || request.cf?.longitude 
-	let tz = query.tz || request.cf?.timezone
-
-	if (!lat || !lon) {
-		return new Response("error: unable to get location")
+	if (!lat || !lon || !tz) {
+		return new Response("error: unable to get location or timezone")
 	}
 
 	const cacheKey = `weather.${lat}:${lon}`
@@ -62,12 +57,27 @@ app.get("/weather", async ({ cache, request, query }) => {
 			"Content-Type": "application/json"
 		}
 	})
+}, {
+	query: t.Object({
+		lat: t.Optional(t.Number({
+			error: 'lat must be a number'
+		})),
+		lon: t.Optional(t.Number({
+			error: 'lon must be a number'
+		})),
+		tz: t.Optional(t.String({
+			error: 'timezone(tz) must be a string'
+		}))
+	})
 })
 
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		app.decorate("cache", env.cache)
+		app.decorate({
+			cache: env.cache
+		})
+
 		return app.fetch(request)
 	},
 } satisfies ExportedHandler<Env>;

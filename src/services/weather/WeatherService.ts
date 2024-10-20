@@ -6,7 +6,7 @@ import { WeatherForecast } from "../../models/weather";
 import { Data, Series, WeatherMetNorway } from "./upstreams/MetNorway";
 
 export interface WeatherService {
-    fetchWeather(lat: string, lon: string, tz: string): Promise<WeatherForecast>
+    fetchWeather(lat: number, lon: number, tz: string): Promise<WeatherForecast>
 }
 
 export class MetNorwayWeatherService implements WeatherService {
@@ -38,7 +38,7 @@ export class MetNorwayWeatherService implements WeatherService {
         }
     }
 
-    public async fetchWeather(lat: string, lon: string, tz: string): Promise<WeatherForecast> {
+    public async fetchWeather(lat: number, lon: number, tz: string): Promise<WeatherForecast> {
         const req = new Request(`https://api.met.no/weatherapi/locationforecast/2.0?lat=${lat}&lon=${lon}`, {
             headers: {
                 "User-Agent": "Workers Wrather API (https://github.com/nexryai/workers-weather-api)",
