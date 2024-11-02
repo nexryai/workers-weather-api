@@ -41,10 +41,12 @@ app.get("/healthz", async () => {
 
 // FIXME: cacheがKVNamespaceにならない
 //@ts-ignore
-app.get("/weather", async ({ cache, request, query }) => {
+app.get("/weather", async ({ cache, request, query, set }) => {
 	let lat = query.lat || request.cf?.latitude as number
 	let lon = query.lon || request.cf?.longitude as number
 	let tz = query.tz || request.cf?.timezone as string
+
+	set.headers["access-control-allow-origin"] = "*"
 
 	if (!lat || !lon || !tz) {
 		return error(400, "error: unable to get location or timezone")
@@ -54,11 +56,8 @@ app.get("/weather", async ({ cache, request, query }) => {
 
 	const exists = await cache.get(cacheKey)
 	if (exists) {
-		return new Response(exists, {
-			headers: {
-				"Content-Type": "application/json"
-			}
-		});
+		set.headers["content-type"] = "application/json"
+		return exists;
 	}
 
 	const res = await weatherService.fetchWeather(lat, lon, tz)
@@ -69,11 +68,8 @@ app.get("/weather", async ({ cache, request, query }) => {
 		expirationTtl: 1800
 	})
 
-	return new Response(resString, {
-		headers: {
-			"Content-Type": "application/json"
-		}
-	})
+	set.headers["content-type"] = "application/json"
+	return resString
 }, {
 	query: t.Object({
 		lat: t.Optional(t.Number({
